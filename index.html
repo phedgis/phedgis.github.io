@@ -13,139 +13,144 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      margin: 0;
-      background: #f4f6f8;
-      padding-bottom: 80px;
-    }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    padding: 0;                /* ✅ Remove extra body padding */
+    background: #f4f6f8;
+  }
 
-    header {
-      background: #004aad;
-      color: white;
-      padding: 15px;
-      text-align: center;
-    }
+  header {
+    background: #004aad;
+    color: white;
+    padding: 8px 0;            /* ✅ Reduced header padding */
+    text-align: center;
+  }
 
-    footer {
-      background: #004aad;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-    }
+  footer {
+    background: #004aad;
+    color: white;
+    text-align: center;
+    padding: 8px 0;            /* ✅ Reduced footer padding */
+    font-size: 12px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
 
-    .container {
-      padding: 15px;
-    }
+  .container {
+    padding: 8px;              /* ✅ Reduced container padding */
+  }
 
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
+  .card {
+    background: white;
+    padding: 10px;             /* ✅ Much smaller card padding */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 10px;       /* ✅ Reduced spacing between cards */
+  }
 
-    input,
-    select {
-      padding: 12px;
-      width: 100%;
-      border-radius: 6px;
-      border: 1px solid #aaa;
-      font-size: 16px;
-    }
+  h3 {
+    margin-top: 0;
+    margin-bottom: 6px;        /* ✅ Tighten heading space */
+  }
 
-    button {
-      padding: 12px;
-      width: 100%;
-      background: #0066ff;
-      border: none;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      margin: 5px 0;
-    }
+  input,
+  select {
+    padding: 8px;              /* ✅ Smaller input field padding */
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+    font-size: 14px;           /* ✅ Slightly reduced font */
+  }
 
-    .button-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
+  button {
+    padding: 8px;              /* ✅ Smaller buttons */
+    width: 100%;
+    background: #0066ff;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    margin: 3px 0;             /* ✅ Reduced vertical spacing */
+  }
 
-    .button-row button {
-      flex: 1 1 calc(33.33% - 10px);
-    }
+  .button-row {
+    display: flex;
+    gap: 6px;                  /* ✅ Smaller gap */
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
 
-    .table-wrapper {
-      overflow-x: auto;
-      background: white;
-      border-radius: 10px;
-      padding-bottom: 5px;
-    }
+  .button-row button {
+    flex: 1 1 calc(33.33% - 6px);
+  }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 14px;
-      table-layout: fixed;
-    }
+  .table-wrapper {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    padding: 5px;              /* ✅ Reduced table wrapper padding */
+  }
 
-    th, td {
-      padding: 8px;
-      word-wrap: break-word;
-      text-align: center;
-    }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;           /* ✅ Smaller top margin */
+    font-size: 13px;
+    table-layout: fixed;
+  }
 
-    th {
-      background: #004aad;
-      color: white;
-    }
+  th, td {
+    padding: 6px;              /* ✅ Smaller cell padding */
+    word-wrap: break-word;
+    text-align: center;
+  }
 
-    .small-btn { padding: 6px; font-size: 12px; }
-    .small-btn i { font-size: 16px; }
+  th {
+    background: #004aad;
+    color: white;
+  }
 
-    .captureBtn { background: #007bff; }
-    .edit-btn { background: #ff9900; }
-    .delete-btn { background: #cc0000; }
+  .small-btn { padding: 4px; font-size: 11px; }
+  .small-btn i { font-size: 14px; }
 
-    .locked td {
-      background: #d9d9d9 !important;
-      color: #666 !important;
-      pointer-events: none !important;
-    }
+  .captureBtn { background: #007bff; }
+  .edit-btn { background: #ff9900; }
+  .delete-btn { background: #cc0000; }
 
-    .locked td:last-child {
-      pointer-events: auto !important;
-      background: #e2e2e2 !important;
-    }
+  .locked td {
+    background: #d9d9d9 !important;
+    color: #666 !important;
+    pointer-events: none !important;
+  }
 
-    /* ✅ COLUMN WIDTHS: ASSET = 3× WIDER */
-    table th:nth-child(1),
-    table td:nth-child(1),
-    table th:nth-child(3),
-    table td:nth-child(3),
-    table th:nth-child(4),
-    table td:nth-child(4),
-    table th:nth-child(5),
-    table td:nth-child(5),
-    table th:nth-child(6),
-    table td:nth-child(6) {
-      width: 11.11%;
-    }
+  .locked td:last-child {
+    pointer-events: auto !important;
+    background: #e2e2e2 !important;
+  }
 
-    table th:nth-child(2),
-    table td:nth-child(2) {
-      width: 33.33%;
-    }
-  </style>
+  /* ✅ Column widths */
+  table th:nth-child(1),
+  table td:nth-child(1),
+  table th:nth-child(3),
+  table td:nth-child(3),
+  table th:nth-child(4),
+  table td:nth-child(4),
+  table th:nth-child(5),
+  table td:nth-child(5),
+  table th:nth-child(6),
+  table td:nth-child(6) {
+    width: 11%;
+  }
+
+  table th:nth-child(2),
+  table td:nth-child(2) {
+    width: 33%;
+  }
+</style>
 </head>
 
 <body>
@@ -165,7 +170,7 @@
 
   <div id="appContent" class="card" style="display: none">
     <div class="button-row">
-      <button onclick="addRow()">Add Row</button>
+      <button onclick="addRow()">Add Asset</button>
       <button onclick="exportExcel()">Export Excel</button>
       <button onclick="exportPDF()">Export PDF</button>
     </div>
