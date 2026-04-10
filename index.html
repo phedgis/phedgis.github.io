@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GIS Capture App</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    button { margin: 5px; padding: 10px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+
+    #appContent { display: none; }
+  </style>
+</head>
+
+<body>
+
+<!-- ✅ Title Input Section -->
+<h2>Enter Project Title</h2>
+<input type="text" id="projectTitleInput" placeholder="Enter title here" style="padding:8px; width:60%;">
+<button onclick="startApp()">Start</button>
+
+<!-- ✅ Dynamic Title -->
+<h2 id="projectTitle" style="display:none; margin-top:30px;"></h2>
+
+<!-- ✅ Main App Section (Hidden until title is entered) -->
+<div id="appContent">
+
+  <button onclick="addRow()">Add Row</button>
+  <button onclick="exportExcel()">Export Excel</button>
+  <button onclick="exportPDF()">Export PDF</button>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Asset</th>
+        <th>Asset Description</th>
+        <th>GIS Capture</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<script>
+let dataArray = [];
+
+/* ✅ Start App Only After Entering Title */
+function startApp() {
+  const title = document.getElementById("projectTitleInput").value.trim();
+
+  if (title === "") {
+    alert("Please enter a title.");
+    return;
+  }
+
+  document.getElementById("projectTitle").innerText = title;
+  document.getElementById("projectTitle").style.display = "block";
+
+  // Show main app content
+  document.getElementById("appContent").style.display = "block";
+
+  // Hide title input section
+  document.getElementById("projectTitleInput").style.display = "none";
+  event.target.style.display = "none"; // hides "Start" button
+}
+
+/* ✅ Add a new row */
+function addRow() {
+  const table = document.getElementById("dataTable").getElementsByTagName("tbody")[0];
+  const row = table.insertRow();
+
+  row.insertCell(0).innerHTML = `
+      <select class="assetSelect">
+        <option value="Transformer">Transformer</option>
+        <option value="HT Pole">HT Pole</option>
+        <option value="LT Pole">LT Pole</option>
+      </select>
+  `;
+
+  row.insertCell(1).innerHTML = `<input type="text" class="assetDesc" placeholder="Enter description">`;
+
+  row.insertCell(2).innerHTML = `<button onclick="captureLocation(this)">Capture</button>`;
+
+  row.insertCell(3).classList.add("latCell");
+  row.insertCell(4).classList.add("lngCell");
+  row.insertCell(5).classList.add("dateCell");
+}
+
+/* ✅ Capture location per row */
+function captureLocation(button) {
+  const row = button.parentNode.parentNode;
+
+  const asset = row.querySelector(".assetSelect").value;
+  const desc  = row.querySelector(".assetDesc").value;
+
+  navigator.geolocation.getCurrentPosition(function(position) {
+    const lat = position.coords.latitude.toFixed(6);
+    const lng = position.coords.longitude.toFixed(6);
+    const date = new Date().toLocaleString();
+
+    row.querySelector(".latCell").innerText = lat;
+    row.querySelector(".lngCell").innerText = lng;
+    row.querySelector(".dateCell").innerText = date;
+
+    // ✅ Gray-out + disable capture button
+    button.disabled = true;
+    button.innerText = "Captured";
+    button.style.background = "#ccc";
+    button.style.cursor = "not-allowed";
+
+    const record = { asset, desc, lat, lng, date };
+    dataArray.push(record);
+
+  }, function() {
+    alert("Unable to retrieve location");
+  });
+}
+
+/* ✅ Export Excel */
+function exportExcel() {
+  const ws = XLSX.utils.json_to_sheet(dataArray);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "GIS Data");
+  XLSX.writeFile(wb, "GIS_Data.xlsx");
+}
+
+/* ✅ Export PDF */
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.text(document.getElementById("projectTitle").innerText, 10, 10);
+
+  dataArray.forEach((item, index) => {
+    const line = `${item.asset} | ${item.desc} | ${item.lat}, ${item.lng} | ${item.date}`;
+    doc.text(line, 10, 20 + (index * 10));
+  });
+
+  doc.save("GIS_Data.pdf");
+}
+</script>
+
+</body>
+</html>
