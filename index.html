@@ -100,7 +100,7 @@ th{background:#004aad;color:white;}
             <th>S/N</th>
             <th>Asset</th>
             <th>Lat</th>
-            <th>Long</th>
+            <th>Lon</th>
             <th></th>
           </tr>
         </thead>
@@ -131,7 +131,7 @@ function showGlobalError(msg){
   setTimeout(()=>bar.style.display="none",3000);
 }
 
-/* ✅ AUTO SAVE */
+/* ✅ Auto Save */
 function saveToLocal(){
   const title=document.getElementById("projectTitleHeader").innerText;
 
@@ -144,7 +144,7 @@ function saveToLocal(){
   localStorage.setItem("gisCaptureData",JSON.stringify(saved));
 }
 
-/* ✅ RESTORE ON PAGE LOAD */
+/* ✅ Restore on load */
 window.onload=function(){
   const saved=localStorage.getItem("gisCaptureData");
   if(!saved) return;
@@ -185,7 +185,7 @@ window.onload=function(){
   updateSerialNumbers();
 };
 
-/* ✅ WARNING BEFORE LEAVING PAGE */
+/* ✅ Warn before leaving */
 window.onbeforeunload=function(){
   return "Your GIS data will be lost if you leave this page.";
 };
@@ -196,7 +196,28 @@ function startApp(){
   if(!title) return showGlobalError("Please enter a project title.");
   document.getElementById("projectTitleHeader").innerText=title;
 
-  globalDate=new Date().toLocaleDateString();
+  /* ✅ BEAUTIFUL DATE FORMAT: 10th April, 2026 */
+  const d = new Date();
+
+  let day = d.getDate();
+  const suffix =
+    (day >= 11 && day <= 13) ? "th" :
+    (day % 10 === 1) ? "st" :
+    (day % 10 === 2) ? "nd" :
+    (day % 10 === 3) ? "rd" : "th";
+
+  day = day + suffix;
+
+  const monthNames = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+
+  const month = monthNames[d.getMonth()];
+  const year = d.getFullYear();
+
+  globalDate = `${day} ${month}, ${year}`;
+
   document.getElementById("projectDate").innerText="Date: "+globalDate;
   document.getElementById("projectDate").style.display="block";
 
@@ -222,7 +243,8 @@ function addRow(){
   const table=document.querySelector("#dataTable tbody");
   const row=table.insertRow();
   const rowId=Date.now();
-  row.dataset.id=rowId; row.dataset.captured="";
+  row.dataset.id=rowId; 
+  row.dataset.captured="";
 
   row.innerHTML=`
     <td></td>
@@ -307,7 +329,8 @@ function editRow(btn){
   row.children[2].remove();
 
   const cap=document.createElement("td");
-  cap.colSpan=2; cap.className="captureCell";
+  cap.colSpan=2; 
+  cap.className="captureCell";
   cap.innerHTML=`
     <button class="captureBtn small-btn" onclick="captureLocation(this)">
       <i class="fa-solid fa-location-crosshairs"></i> Recapture
