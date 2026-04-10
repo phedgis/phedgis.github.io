@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PHED GIS Capture App</title>
+  <title>GIS Capture App</title>
 
   <!-- FONT AWESOME -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -119,6 +119,15 @@ th {
   color: white;
 }
 
+/* ✅ ALTERNATING ROW COLORS EXACTLY AS REQUESTED */
+#dataTable tbody tr:nth-child(odd) {
+  background: #e9f3ff;   /* ROW 1, 3, 5 → Light Blue */
+}
+
+#dataTable tbody tr:nth-child(even) {
+  background: #ffffff;   /* ROW 2, 4, 6 → White */
+}
+
 .small-btn { padding: 5px; font-size: 12px; }
 .captureBtn { background: #007bff; }
 .edit-btn { background: #ff9900; }
@@ -158,7 +167,7 @@ th {
     <div class="table-wrapper">
       <table id="dataTable">
 
-        <!-- ✅ ENSURES ASSET = 3× WIDTH OF S/N -->
+        <!-- ✅ Column widths (Asset = 3× S/N) -->
         <colgroup>
           <col style="width: 5%;">   <!-- S/N -->
           <col style="width: 45%;">   <!-- Asset -->
@@ -213,6 +222,7 @@ function startApp() {
   document.getElementById("appContent").style.display = "block";
 }
 
+/* ✅ UPDATE S/N */
 function updateSerialNumbers() {
   const rows = document.querySelectorAll("#dataTable tbody tr");
   rows.forEach((row, index) => {
@@ -281,10 +291,8 @@ function captureLocation(btn) {
       const lat = pos.coords.latitude.toFixed(6);
       const lng = pos.coords.longitude.toFixed(6);
 
-      const cell = btn.parentElement;
-      cell.remove();
+      btn.parentElement.remove();
 
-      /* Insert new cells */
       const latCell = document.createElement("td");
       latCell.innerText = lat;
 
@@ -298,14 +306,8 @@ function captureLocation(btn) {
       assetSelect.disabled = true;
       row.querySelector(".edit-btn").disabled = false;
 
-      /* Save */
       dataArray = dataArray.filter(r => r.id !== row.dataset.id);
-      dataArray.push({
-        id: row.dataset.id,
-        asset: assetSelect.value,
-        lat: lat,
-        lng: lng
-      });
+      dataArray.push({ id: row.dataset.id, asset: assetSelect.value, lat, lng });
     },
 
     () => showGlobalError("GPS unavailable.")
@@ -338,11 +340,8 @@ function editRow(btn) {
 /* ✅ DELETE ROW */
 function deleteRow(btn) {
   const row = btn.closest("tr");
-  const rowId = row.dataset.id;
-
-  dataArray = dataArray.filter(r => r.id !== rowId);
+  dataArray = dataArray.filter(r => r.id !== row.dataset.id);
   row.remove();
-
   updateSerialNumbers();
 }
 
