@@ -144,6 +144,30 @@
       background: #e2e2e2 !important;
     }
 
+    /* ✅ COLUMN WIDTH ADJUSTMENTS */
+    table th:nth-child(1), 
+    table td:nth-child(1) {
+      width: 8%;    /* S/N = half width */
+    }
+
+    table th:nth-child(2), 
+    table td:nth-child(2),
+    table th:nth-child(3), 
+    table td:nth-child(3) {
+      width: 20%;   /* Asset + Desc = double width */
+    }
+
+    table th:nth-child(4),
+    table td:nth-child(4),
+    table th:nth-child(5),
+    table td:nth-child(5),
+    table th:nth-child(6),
+    table td:nth-child(6),
+    table th:nth-child(7),
+    table td:nth-child(7) {
+      width: 13%;  /* Remaining columns */
+    }
+
     /* MOBILE OPTIMIZATION */
     @media (max-width: 600px) {
       header h2 {
@@ -327,6 +351,7 @@ function captureLocation(button) {
 function lockRow(row) {
   row.classList.add("locked");
   row.querySelector(".assetSelect").disabled = true;
+
   row.querySelector(".assetDesc").disabled = true;
   row.querySelector(".captureBtn").disabled = true;
 }
