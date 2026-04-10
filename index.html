@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GIS Capture App</title>
+  <title>PHED GIS Capture App</title>
 
   <!-- FONT AWESOME -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -37,8 +37,24 @@ footer {
   width: 100%;
 }
 
+/* ✅ GLOBAL ERROR BAR */
+#globalError {
+  width: 100%;
+  text-align: center;
+  color: white;
+  background: #cc0000;
+  padding: 8px;
+  font-size: 14px;
+  display: none;
+  position: fixed;
+  bottom: 40px; 
+  left: 0;
+  z-index: 9999;
+}
+
 .container {
   padding: 8px;
+  margin-bottom: 60px;
 }
 
 .card {
@@ -64,6 +80,11 @@ button {
   border-radius: 6px;
   margin: 3px 0;
   cursor: pointer;
+}
+
+button:disabled {
+  background: #7ba6ff !important;
+  cursor: not-allowed;
 }
 
 .button-row {
@@ -98,31 +119,7 @@ th {
   color: white;
 }
 
-/* ✅ COLUMN WIDTH CONTROL */
-table th:nth-child(1),
-table td:nth-child(1) {
-  width: 5%;
-}
-
-table th:nth-child(2),
-table td:nth-child(2) {
-  width: 40%; /* 3x S/N */
-}
-
-table th:nth-child(3),
-table td:nth-child(3),
-table th:nth-child(4),
-table td:nth-child(4) {
-  width: 20%;
-}
-
-table th:nth-child(5),
-table td:nth-child(5) {
-  width: 10%;
-}
-
 .small-btn { padding: 5px; font-size: 12px; }
-
 .captureBtn { background: #007bff; }
 .edit-btn { background: #ff9900; }
 .delete-btn { background: #cc0000; }
@@ -140,6 +137,8 @@ table td:nth-child(5) {
   <div id="projectDate" style="display:none"></div>
 </header>
 
+<div id="globalError"></div>
+
 <div class="container">
 
   <div id="titleSection" class="card">
@@ -151,13 +150,23 @@ table td:nth-child(5) {
   <div id="appContent" class="card" style="display:none">
 
     <div class="button-row">
-      <button onclick="addRow()">Add Asset</button>
+      <button id="addAssetBtn" onclick="addRow()">Add Asset</button>
       <button onclick="exportExcel()">Export Excel</button>
       <button onclick="exportPDF()">Export PDF</button>
     </div>
 
     <div class="table-wrapper">
       <table id="dataTable">
+
+        <!-- ✅ ENSURES ASSET = 3× WIDTH OF S/N -->
+        <colgroup>
+          <col style="width: 5%;">   <!-- S/N -->
+          <col style="width: 45%;">   <!-- Asset -->
+          <col style="width: 20%;">   <!-- Lat -->
+          <col style="width: 20%;">   <!-- Long -->
+          <col style="width: 10%;">   <!-- Action -->
+        </colgroup>
+
         <thead>
           <tr>
             <th>S/N</th>
@@ -182,13 +191,20 @@ table td:nth-child(5) {
 let dataArray = [];
 let globalDate = "";
 
-/* START APP */
+/* ✅ GLOBAL ERROR MESSAGE */
+function showGlobalError(msg) {
+  const bar = document.getElementById("globalError");
+  bar.innerHTML = "⚠ " + msg;
+  bar.style.display = "block";
+  setTimeout(() => bar.style.display = "none", 3000);
+}
+
+/* ✅ START APP */
 function startApp() {
   const title = document.getElementById("projectTitleInput").value.trim();
-  if (!title) return alert("Enter a project title.");
+  if (!title) return showGlobalError("Please enter a project title.");
 
   document.getElementById("projectTitleHeader").innerText = title;
-
   globalDate = new Date().toLocaleDateString();
   document.getElementById("projectDate").innerText = "Date: " + globalDate;
   document.getElementById("projectDate").style.display = "block";
@@ -197,7 +213,6 @@ function startApp() {
   document.getElementById("appContent").style.display = "block";
 }
 
-/* SERIAL NUMBER */
 function updateSerialNumbers() {
   const rows = document.querySelectorAll("#dataTable tbody tr");
   rows.forEach((row, index) => {
@@ -205,25 +220,33 @@ function updateSerialNumbers() {
   });
 }
 
-/* ADD ROW */
+/* ✅ ADD ROW */
 function addRow() {
+  const lastRow = document.querySelector("#dataTable tbody tr:last-child");
+
+  if (lastRow && !lastRow.dataset.captured) {
+    return showGlobalError("Complete the previous asset before adding a new one.");
+  }
+
   const table = document.querySelector("#dataTable tbody");
   const row = table.insertRow();
   const rowId = Date.now() + Math.random();
   row.dataset.id = rowId;
+  row.dataset.captured = "";
 
   row.innerHTML = `
     <td></td>
 
     <td>
       <select class="assetSelect">
-        <option>Transformer</option>
-        <option>40ft HT Pole</option>
-        <option>34ft HT Pole</option>
-        <option>28ft LT Pole</option>
-        <option>33kV Gang Isolator</option>
-        <option>11kV Gang Isolator</option>
-        <option>Auto Recloser</option>
+        <option value="" disabled selected>Select Asset</option>
+        <option value="Transformer">Transformer</option>
+        <option value="40ft HT Pole">40ft HT Pole</option>
+        <option value="34ft HT Pole">34ft HT Pole</option>
+        <option value="28ft LT Pole">28ft LT Pole</option>
+        <option value="33kV Gang Isolator">33kV Gang Isolator</option>
+        <option value="11kV Gang Isolator">11kV Gang Isolator</option>
+        <option value="Auto Recloser">Auto Recloser</option>
       </select>
     </td>
 
@@ -234,7 +257,7 @@ function addRow() {
     </td>
 
     <td>
-      <button class="small-btn edit-btn" onclick="editRow(this)">
+      <button class="small-btn edit-btn" onclick="editRow(this)" disabled>
         <i class="fa-solid fa-pen"></i>
       </button>
       <button class="small-btn delete-btn" onclick="deleteRow(this)">
@@ -246,18 +269,22 @@ function addRow() {
   updateSerialNumbers();
 }
 
-/* CAPTURE GPS */
+/* ✅ CAPTURE GPS */
 function captureLocation(btn) {
   const row = btn.closest("tr");
+  const assetSelect = row.querySelector(".assetSelect");
+
+  if (!assetSelect.value) return showGlobalError("Please select an asset first.");
 
   navigator.geolocation.getCurrentPosition(
-    function (pos) {
+    pos => {
       const lat = pos.coords.latitude.toFixed(6);
       const lng = pos.coords.longitude.toFixed(6);
 
       const cell = btn.parentElement;
       cell.remove();
 
+      /* Insert new cells */
       const latCell = document.createElement("td");
       latCell.innerText = lat;
 
@@ -267,48 +294,64 @@ function captureLocation(btn) {
       row.insertBefore(latCell, row.children[2]);
       row.insertBefore(lngCell, row.children[3]);
 
-      const rowId = row.dataset.id;
-      const asset = row.querySelector(".assetSelect").value;
+      row.dataset.captured = "true";
+      assetSelect.disabled = true;
+      row.querySelector(".edit-btn").disabled = false;
 
-      dataArray = dataArray.filter(r => r.id !== rowId);
-      dataArray.push({ id: rowId, asset, lat, lng });
+      /* Save */
+      dataArray = dataArray.filter(r => r.id !== row.dataset.id);
+      dataArray.push({
+        id: row.dataset.id,
+        asset: assetSelect.value,
+        lat: lat,
+        lng: lng
+      });
     },
-    () => alert("GPS unavailable.")
+
+    () => showGlobalError("GPS unavailable.")
   );
 }
 
-/* EDIT ROW */
+/* ✅ EDIT ROW */
 function editRow(btn) {
   const row = btn.closest("tr");
+  row.dataset.captured = "";
+
+  dataArray = dataArray.filter(r => r.id !== row.dataset.id);
 
   row.children[2].remove();
   row.children[2].remove();
 
-  const cell = document.createElement("td");
-  cell.colSpan = 2;
-  cell.className = "captureCell";
-
-  cell.innerHTML = `
+  const cap = document.createElement("td");
+  cap.colSpan = 2;
+  cap.className = "captureCell";
+  cap.innerHTML = `
     <button class="captureBtn small-btn" onclick="captureLocation(this)">
       <i class="fa-solid fa-location-crosshairs"></i> Recapture
     </button>
   `;
 
-  row.insertBefore(cell, row.children[2]);
+  row.insertBefore(cap, row.children[2]);
+  row.querySelector(".assetSelect").disabled = false;
 }
 
-/* DELETE ROW */
+/* ✅ DELETE ROW */
 function deleteRow(btn) {
   const row = btn.closest("tr");
   const rowId = row.dataset.id;
 
   dataArray = dataArray.filter(r => r.id !== rowId);
   row.remove();
+
   updateSerialNumbers();
 }
 
-/* EXPORT EXCEL */
+/* ✅ EXPORT EXCEL */
 function exportExcel() {
+  if (dataArray.length === 0) {
+    return showGlobalError("No data recorded.");
+  }
+
   const exportData = dataArray.map((item, index) => ({
     "S/N": index + 1,
     Asset: item.asset,
@@ -322,7 +365,7 @@ function exportExcel() {
   XLSX.writeFile(wb, "GIS_Data.xlsx");
 }
 
-/* EXPORT PDF */
+/* ✅ EXPORT PDF */
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -330,12 +373,12 @@ function exportPDF() {
   doc.text(document.getElementById("projectTitleHeader").innerText, 10, 10);
   doc.text("Date: " + globalDate, 10, 16);
 
+  if (dataArray.length === 0) {
+    return showGlobalError("No data recorded.");
+  }
+
   dataArray.forEach((item, i) => {
-    doc.text(
-      `${i + 1}. ${item.asset} | ${item.lat}, ${item.lng}`,
-      10,
-      30 + i * 10
-    );
+    doc.text(`${i + 1}. ${item.asset} | ${item.lat}, ${item.lng}`, 10, 30 + i * 10);
   });
 
   doc.save("GIS_Data.pdf");
