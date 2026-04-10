@@ -37,7 +37,9 @@ footer {
   width: 100%;
 }
 
-.container { padding: 8px; }
+.container {
+  padding: 8px;
+}
 
 .card {
   background: white;
@@ -94,6 +96,29 @@ th, td {
 th {
   background: #004aad;
   color: white;
+}
+
+/* ✅ COLUMN WIDTH CONTROL */
+table th:nth-child(1),
+table td:nth-child(1) {
+  width: 5%;
+}
+
+table th:nth-child(2),
+table td:nth-child(2) {
+  width: 50%; /* 3x S/N */
+}
+
+table th:nth-child(3),
+table td:nth-child(3),
+table th:nth-child(4),
+table td:nth-child(4) {
+  width: 15%;
+}
+
+table th:nth-child(5),
+table td:nth-child(5) {
+  width: 10%;
 }
 
 .small-btn { padding: 5px; font-size: 12px; }
@@ -157,7 +182,7 @@ th {
 let dataArray = [];
 let globalDate = "";
 
-/* Start App */
+/* START APP */
 function startApp() {
   const title = document.getElementById("projectTitleInput").value.trim();
   if (!title) return alert("Enter a project title.");
@@ -172,7 +197,7 @@ function startApp() {
   document.getElementById("appContent").style.display = "block";
 }
 
-/* Serial Numbers */
+/* SERIAL NUMBER */
 function updateSerialNumbers() {
   const rows = document.querySelectorAll("#dataTable tbody tr");
   rows.forEach((row, index) => {
@@ -180,7 +205,7 @@ function updateSerialNumbers() {
   });
 }
 
-/* Add Row */
+/* ADD ROW */
 function addRow() {
   const table = document.querySelector("#dataTable tbody");
   const row = table.insertRow();
@@ -221,7 +246,7 @@ function addRow() {
   updateSerialNumbers();
 }
 
-/* Capture GPS */
+/* CAPTURE GPS */
 function captureLocation(btn) {
   const row = btn.closest("tr");
 
@@ -230,24 +255,18 @@ function captureLocation(btn) {
       const lat = pos.coords.latitude.toFixed(6);
       const lng = pos.coords.longitude.toFixed(6);
 
-      const captureCell = btn.parentElement;
+      const cell = btn.parentElement;
+      cell.remove();
 
-      // Remove merged cell
-      captureCell.remove();
-
-      // Create Lat cell
       const latCell = document.createElement("td");
       latCell.innerText = lat;
 
-      // Create Long cell
       const lngCell = document.createElement("td");
       lngCell.innerText = lng;
 
-      // Insert them in correct positions
       row.insertBefore(latCell, row.children[2]);
       row.insertBefore(lngCell, row.children[3]);
 
-      // Save data
       const rowId = row.dataset.id;
       const asset = row.querySelector(".assetSelect").value;
 
@@ -258,29 +277,27 @@ function captureLocation(btn) {
   );
 }
 
-/* Edit Row */
+/* EDIT ROW */
 function editRow(btn) {
   const row = btn.closest("tr");
 
-  // Remove Lat & Long cells
   row.children[2].remove();
   row.children[2].remove();
 
-  // Restore capture button
-  const captureCell = document.createElement("td");
-  captureCell.colSpan = 2;
-  captureCell.className = "captureCell";
+  const cell = document.createElement("td");
+  cell.colSpan = 2;
+  cell.className = "captureCell";
 
-  captureCell.innerHTML = `
+  cell.innerHTML = `
     <button class="captureBtn small-btn" onclick="captureLocation(this)">
       <i class="fa-solid fa-location-crosshairs"></i> Recapture
     </button>
   `;
 
-  row.insertBefore(captureCell, row.children[2]);
+  row.insertBefore(cell, row.children[2]);
 }
 
-/* Delete Row */
+/* DELETE ROW */
 function deleteRow(btn) {
   const row = btn.closest("tr");
   const rowId = row.dataset.id;
@@ -290,7 +307,7 @@ function deleteRow(btn) {
   updateSerialNumbers();
 }
 
-/* Export Excel */
+/* EXPORT EXCEL */
 function exportExcel() {
   const exportData = dataArray.map((item, index) => ({
     "S/N": index + 1,
@@ -305,7 +322,7 @@ function exportExcel() {
   XLSX.writeFile(wb, "GIS_Data.xlsx");
 }
 
-/* Export PDF */
+/* EXPORT PDF */
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
