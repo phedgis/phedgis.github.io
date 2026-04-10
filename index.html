@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GIS Capture App</title>
 
-  <!-- FONT AWESOME ICONS -->
+  <!-- FONT AWESOME -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- EXCEL + PDF LIBRARIES -->
+  <!-- EXCEL + PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -72,7 +72,6 @@
       margin: 5px 0;
     }
 
-    /* BUTTON ROW */
     .button-row {
       display: flex;
       gap: 10px;
@@ -84,7 +83,6 @@
       flex: 1 1 calc(33.33% - 10px);
     }
 
-    /* TABLE WRAPPER */
     .table-wrapper {
       overflow-x: auto;
       background: white;
@@ -100,8 +98,7 @@
       table-layout: fixed;
     }
 
-    th,
-    td {
+    th, td {
       padding: 8px;
       word-wrap: break-word;
       text-align: center;
@@ -112,26 +109,12 @@
       color: white;
     }
 
-    .small-btn {
-      padding: 6px;
-      font-size: 12px;
-    }
+    .small-btn { padding: 6px; font-size: 12px; }
+    .small-btn i { font-size: 16px; }
 
-    .small-btn i {
-      font-size: 16px;
-    }
-
-    .captureBtn {
-      background: #007bff;
-    }
-
-    .edit-btn {
-      background: #ff9900;
-    }
-
-    .delete-btn {
-      background: #cc0000;
-    }
+    .captureBtn { background: #007bff; }
+    .edit-btn { background: #ff9900; }
+    .delete-btn { background: #cc0000; }
 
     .locked td {
       background: #d9d9d9 !important;
@@ -144,63 +127,23 @@
       background: #e2e2e2 !important;
     }
 
-    /* ✅ COLUMN WIDTH ADJUSTMENTS */
-    table th:nth-child(1), 
-    table td:nth-child(1) {
-      width: 8%;    /* S/N = half width */
-    }
-
-    table th:nth-child(2), 
-    table td:nth-child(2),
-    table th:nth-child(3), 
-    table td:nth-child(3) {
-      width: 30%;   /* Asset + Desc = double width */
-    }
-
+    /* ✅ COLUMN WIDTHS: ASSET = 3× WIDER */
+    table th:nth-child(1),
+    table td:nth-child(1),
+    table th:nth-child(3),
+    table td:nth-child(3),
     table th:nth-child(4),
     table td:nth-child(4),
     table th:nth-child(5),
     table td:nth-child(5),
     table th:nth-child(6),
-    table td:nth-child(6),
-    table th:nth-child(7),
-    table td:nth-child(7) {
-      width: 13%;  /* Remaining columns */
+    table td:nth-child(6) {
+      width: 11.11%;
     }
 
-    /* MOBILE OPTIMIZATION */
-    @media (max-width: 600px) {
-      header h2 {
-        font-size: 20px;
-      }
-      input,
-      select {
-        font-size: 14px;
-      }
-      table {
-        font-size: 12px;
-      }
-      .button-row button {
-        flex: 1 1 100%;
-      }
-    }
-
-    @media (max-width: 380px) {
-      header h2 {
-        font-size: 18px;
-      }
-      table {
-        font-size: 11px;
-      }
-    }
-
-    @media (max-width: 300px) {
-      header h2 {
-        font-size: 16px;
-      }
-      table {
-        font-size: 10px;
-      }
+    table th:nth-child(2),
+    table td:nth-child(2) {
+      width: 33.33%;
     }
   </style>
 </head>
@@ -234,7 +177,6 @@
             <th>S/N</th>
             <th>Asset</th>
             <th>Desc</th>
-            <th>GPS</th>
             <th>Lat</th>
             <th>Long</th>
             <th>Action</th>
@@ -260,7 +202,6 @@ function startApp() {
   if (!title) return alert("Enter a project title.");
 
   document.getElementById("projectTitleHeader").innerText = title;
-
   globalDate = new Date().toLocaleDateString();
   document.getElementById("projectDate").innerText = "Date: " + globalDate;
   document.getElementById("projectDate").style.display = "block";
@@ -269,7 +210,7 @@ function startApp() {
   document.getElementById("appContent").style.display = "block";
 }
 
-/* Update S/N */
+/* Update Serial Numbers */
 function updateSerialNumbers() {
   const rows = document.querySelectorAll("#dataTable tbody tr");
   rows.forEach((row, index) => {
@@ -281,7 +222,6 @@ function updateSerialNumbers() {
 function addRow() {
   const table = document.querySelector("#dataTable tbody");
   const row = table.insertRow();
-
   const rowId = Date.now() + Math.random();
   row.dataset.id = rowId;
 
@@ -297,14 +237,16 @@ function addRow() {
 
     <td><input type="text" class="assetDesc" placeholder="Enter description"></td>
 
-    <td>
+    <td class="latCell">
       <button class="captureBtn small-btn" onclick="captureLocation(this)">
         <i class="fa-solid fa-location-crosshairs"></i>
       </button>
+      <span class="latValue" style="display:none;"></span>
     </td>
 
-    <td class="latCell"></td>
-    <td class="lngCell"></td>
+    <td class="lngCell">
+      <span class="lngValue" style="display:none;"></span>
+    </td>
 
     <td>
       <button class="small-btn edit-btn" onclick="editRow(this)">
@@ -320,55 +262,42 @@ function addRow() {
 }
 
 /* Capture GPS */
-function captureLocation(button) {
-  const row = button.closest("tr");
+function captureLocation(btn) {
+  const row = btn.closest("tr");
 
   navigator.geolocation.getCurrentPosition(
     function (pos) {
       const lat = pos.coords.latitude.toFixed(6);
       const lng = pos.coords.longitude.toFixed(6);
 
-      row.querySelector(".latCell").innerText = lat;
-      row.querySelector(".lngCell").innerText = lng;
+      row.querySelector(".latValue").innerText = lat;
+      row.querySelector(".lngValue").innerText = lng;
 
-      button.disabled = true;
-      button.innerHTML = '<i class="fa-solid fa-check"></i>';
-
-      lockRow(row);
+      btn.style.display = "none";
+      row.querySelector(".latValue").style.display = "inline";
+      row.querySelector(".lngValue").style.display = "inline";
 
       const rowId = row.dataset.id;
       const asset = row.querySelector(".assetSelect").value;
       const desc = row.querySelector(".assetDesc").value;
 
-      dataArray = dataArray.filter((r) => r.id !== rowId);
+      dataArray = dataArray.filter(r => r.id !== rowId);
       dataArray.push({ id: rowId, asset, desc, lat, lng });
     },
     () => alert("GPS unavailable.")
   );
 }
 
-/* Lock row */
-function lockRow(row) {
-  row.classList.add("locked");
-  row.querySelector(".assetSelect").disabled = true;
-
-  row.querySelector(".assetDesc").disabled = true;
-  row.querySelector(".captureBtn").disabled = true;
-}
-
 /* Edit Row */
 function editRow(btn) {
   const row = btn.closest("tr");
-  row.classList.remove("locked");
+
+  row.querySelector(".latValue").style.display = "none";
+  row.querySelector(".lngValue").style.display = "none";
+  row.querySelector(".captureBtn").style.display = "inline";
 
   row.querySelector(".assetSelect").disabled = false;
   row.querySelector(".assetDesc").disabled = false;
-
-  const captureBtn = row.querySelector(".captureBtn");
-  captureBtn.disabled = false;
-  captureBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
-
-  alert("Row unlocked. You can now edit & recapture GPS.");
 }
 
 /* Delete Row */
@@ -376,7 +305,7 @@ function deleteRow(btn) {
   const row = btn.closest("tr");
   const rowId = row.dataset.id;
 
-  dataArray = dataArray.filter((r) => r.id !== rowId);
+  dataArray = dataArray.filter(r => r.id !== rowId);
 
   row.remove();
   updateSerialNumbers();
@@ -417,5 +346,6 @@ function exportPDF() {
   doc.save("GIS_Data.pdf");
 }
 </script>
+
 </body>
 </html>
