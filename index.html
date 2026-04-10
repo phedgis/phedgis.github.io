@@ -12,18 +12,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <style>
+<style>
   body {
     font-family: "Segoe UI", Arial, sans-serif;
     margin: 0;
-    padding: 0;                /* ✅ Remove extra body padding */
+    padding: 0;
     background: #f4f6f8;
   }
 
   header {
     background: #004aad;
     color: white;
-    padding: 8px 0;            /* ✅ Reduced header padding */
+    padding: 8px 0;
     text-align: center;
   }
 
@@ -31,7 +31,7 @@
     background: #004aad;
     color: white;
     text-align: center;
-    padding: 8px 0;            /* ✅ Reduced footer padding */
+    padding: 8px 0;
     font-size: 12px;
     position: fixed;
     bottom: 0;
@@ -40,33 +40,32 @@
   }
 
   .container {
-    padding: 8px;              /* ✅ Reduced container padding */
+    padding: 8px;
   }
 
   .card {
     background: white;
-    padding: 10px;             /* ✅ Much smaller card padding */
+    padding: 10px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    margin-bottom: 10px;       /* ✅ Reduced spacing between cards */
+    margin-bottom: 10px;
   }
 
   h3 {
     margin-top: 0;
-    margin-bottom: 6px;        /* ✅ Tighten heading space */
+    margin-bottom: 6px;
   }
 
-  input,
-  select {
-    padding: 8px;              /* ✅ Smaller input field padding */
+  input, select {
+    padding: 8px;
     width: 100%;
     border-radius: 6px;
     border: 1px solid #aaa;
-    font-size: 14px;           /* ✅ Slightly reduced font */
+    font-size: 14px;
   }
 
   button {
-    padding: 8px;              /* ✅ Smaller buttons */
+    padding: 8px;
     width: 100%;
     background: #0066ff;
     border: none;
@@ -74,12 +73,12 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
-    margin: 3px 0;             /* ✅ Reduced vertical spacing */
+    margin: 3px 0;
   }
 
   .button-row {
     display: flex;
-    gap: 6px;                  /* ✅ Smaller gap */
+    gap: 6px;
     margin-bottom: 6px;
     flex-wrap: wrap;
   }
@@ -92,19 +91,19 @@
     overflow-x: auto;
     background: white;
     border-radius: 8px;
-    padding: 5px;              /* ✅ Reduced table wrapper padding */
+    padding: 5px;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 6px;           /* ✅ Smaller top margin */
+    margin-top: 6px;
     font-size: 13px;
     table-layout: fixed;
   }
 
   th, td {
-    padding: 6px;              /* ✅ Smaller cell padding */
+    padding: 6px;
     word-wrap: break-word;
     text-align: center;
   }
@@ -121,18 +120,7 @@
   .edit-btn { background: #ff9900; }
   .delete-btn { background: #cc0000; }
 
-  .locked td {
-    background: #d9d9d9 !important;
-    color: #666 !important;
-    pointer-events: none !important;
-  }
-
-  .locked td:last-child {
-    pointer-events: auto !important;
-    background: #e2e2e2 !important;
-  }
-
-  /* ✅ Column widths */
+  /* Column widths */
   table th:nth-child(1),
   table td:nth-child(1),
   table th:nth-child(3),
@@ -140,15 +128,13 @@
   table th:nth-child(4),
   table td:nth-child(4),
   table th:nth-child(5),
-  table td:nth-child(5),
-  table th:nth-child(6),
-  table td:nth-child(6) {
-    width: 11%;
+  table td:nth-child(5) {
+    width: 16%;
   }
 
   table th:nth-child(2),
   table td:nth-child(2) {
-    width: 33%;
+    width: 36%;
   }
 </style>
 </head>
@@ -157,18 +143,20 @@
 
 <header>
   <h2 id="projectTitleHeader">GIS Capture App</h2>
-  <div id="projectDate" style="display: none"></div>
+  <div id="projectDate" style="display:none"></div>
 </header>
 
 <div class="container">
+
   <div id="titleSection" class="card">
     <h3>Enter Project Title</h3>
     <input type="text" id="projectTitleInput" placeholder="Enter title here" />
-    <br /><br />
+    <br><br>
     <button onclick="startApp()">Start</button>
   </div>
 
-  <div id="appContent" class="card" style="display: none">
+  <div id="appContent" class="card" style="display:none">
+
     <div class="button-row">
       <button onclick="addRow()">Add Asset</button>
       <button onclick="exportExcel()">Export Excel</button>
@@ -181,7 +169,6 @@
           <tr>
             <th>S/N</th>
             <th>Asset</th>
-            <th>Desc</th>
             <th>Lat</th>
             <th>Long</th>
             <th>Action</th>
@@ -190,6 +177,7 @@
         <tbody></tbody>
       </table>
     </div>
+
   </div>
 </div>
 
@@ -207,6 +195,7 @@ function startApp() {
   if (!title) return alert("Enter a project title.");
 
   document.getElementById("projectTitleHeader").innerText = title;
+
   globalDate = new Date().toLocaleDateString();
   document.getElementById("projectDate").innerText = "Date: " + globalDate;
   document.getElementById("projectDate").style.display = "block";
@@ -232,19 +221,22 @@ function addRow() {
 
   row.innerHTML = `
     <td></td>
+
     <td>
       <select class="assetSelect">
         <option value="Transformer">Transformer</option>
-        <option value="HT Pole">HT Pole</option>
-        <option value="LT Pole">LT Pole</option>
+        <option value="40ft HT Pole">40ft HT Pole</option>
+        <option value="34ft HT Pole">34ft HT Pole</option>
+        <option value="28ft LT Pole">28ft LT Pole</option>
+        <option value="33kV Gang Isolator">33kV Gang Isolator</option>
+        <option value="11kV Gang Isolator">11kV Gang Isolator</option>
+        <option value="Auto Recloser">Auto Recloser</option>
       </select>
     </td>
 
-    <td><input type="text" class="assetDesc" placeholder="Enter description"></td>
-
     <td class="latCell">
       <button class="captureBtn small-btn" onclick="captureLocation(this)">
-        <i class="fa-solid fa-location-crosshairs"></i>
+        CAPTURE
       </button>
       <span class="latValue" style="display:none;"></span>
     </td>
@@ -284,10 +276,9 @@ function captureLocation(btn) {
 
       const rowId = row.dataset.id;
       const asset = row.querySelector(".assetSelect").value;
-      const desc = row.querySelector(".assetDesc").value;
 
       dataArray = dataArray.filter(r => r.id !== rowId);
-      dataArray.push({ id: rowId, asset, desc, lat, lng });
+      dataArray.push({ id: rowId, asset, lat, lng });
     },
     () => alert("GPS unavailable.")
   );
@@ -302,7 +293,6 @@ function editRow(btn) {
   row.querySelector(".captureBtn").style.display = "inline";
 
   row.querySelector(".assetSelect").disabled = false;
-  row.querySelector(".assetDesc").disabled = false;
 }
 
 /* Delete Row */
@@ -311,7 +301,6 @@ function deleteRow(btn) {
   const rowId = row.dataset.id;
 
   dataArray = dataArray.filter(r => r.id !== rowId);
-
   row.remove();
   updateSerialNumbers();
 }
@@ -321,9 +310,8 @@ function exportExcel() {
   const exportData = dataArray.map((item, index) => ({
     "S/N": index + 1,
     Asset: item.asset,
-    Description: item.desc,
     Latitude: item.lat,
-    Longitude: item.lng,
+    Longitude: item.lng
   }));
 
   const ws = XLSX.utils.json_to_sheet(exportData);
@@ -342,7 +330,7 @@ function exportPDF() {
 
   dataArray.forEach((item, i) => {
     doc.text(
-      `${i + 1}. ${item.asset} | ${item.desc} | ${item.lat}, ${item.lng}`,
+      `${i + 1}. ${item.asset} | ${item.lat}, ${item.lng}`,
       10,
       30 + i * 10
     );
