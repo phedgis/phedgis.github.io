@@ -88,7 +88,9 @@ th{background:#004aad;color:white;}
 
   <div id="appContent" class="card" style="display:none">
 
+    <!-- ✅ RESET BUTTON ADDED HERE -->
     <div class="button-row">
+      <button style="background:white;color:red;border:1px solid red" onclick="resetApp()">Reset</button>
       <button style="background:white;color:black;border:1px solid blue" onclick="exportExcel()">Export Excel</button>
       <button style="background:white;color:black;border:1px solid blue" onclick="exportPDF()">Export PDF</button>
     </div>
@@ -123,7 +125,7 @@ th{background:#004aad;color:white;}
 let dataArray = [];
 let globalDate = "";
 
-/* ✅ Global error message */
+/* ✅ Error Bar */
 function showGlobalError(msg){
   const bar=document.getElementById("globalError");
   bar.innerHTML="⚠ "+msg;
@@ -144,7 +146,7 @@ function saveToLocal(){
   localStorage.setItem("gisCaptureData",JSON.stringify(saved));
 }
 
-/* ✅ Restore on load */
+/* ✅ Restore Previous Session */
 window.onload=function(){
   const saved=localStorage.getItem("gisCaptureData");
   if(!saved) return;
@@ -185,7 +187,7 @@ window.onload=function(){
   updateSerialNumbers();
 };
 
-/* ✅ Warn before leaving */
+/* ✅ Warn Before Leaving */
 window.onbeforeunload=function(){
   return "Your GIS data will be lost if you leave this page.";
 };
@@ -196,7 +198,7 @@ function startApp(){
   if(!title) return showGlobalError("Please enter a project title.");
   document.getElementById("projectTitleHeader").innerText=title;
 
-  /* ✅ BEAUTIFUL DATE FORMAT: 10th April, 2026 */
+  /* ✅ Formatted Date */
   const d = new Date();
 
   let day = d.getDate();
@@ -227,13 +229,34 @@ function startApp(){
   saveToLocal();
 }
 
-/* ✅ Update S/N */
+/* ✅ Reset App Completely */
+function resetApp(){
+  if(!confirm("Are you sure you want to reset everything? This will erase all saved data.")){
+    return;
+  }
+
+  localStorage.removeItem("gisCaptureData");
+  dataArray = [];
+  globalDate = "";
+
+  document.querySelector("#dataTable tbody").innerHTML = "";
+  document.getElementById("projectTitleInput").value = "";
+  document.getElementById("projectTitleHeader").innerText = "PHED GIS Capture App";
+  document.getElementById("projectDate").style.display = "none";
+
+  document.getElementById("titleSection").style.display = "block";
+  document.getElementById("appContent").style.display = "none";
+
+  showGlobalError("✅ App reset successfully.");
+}
+
+/* ✅ Update Serial Numbers */
 function updateSerialNumbers(){
   const rows=document.querySelectorAll("#dataTable tbody tr");
   rows.forEach((row,index)=>{ row.cells[0].innerText=index+1; });
 }
 
-/* ✅ Add Row */
+/* ✅ Add New Row */
 function addRow(){
   const last=document.querySelector("#dataTable tbody tr:last-child");
   if(last && !last.dataset.captured){
@@ -395,3 +418,4 @@ function exportPDF(){
 
 </body>
 </html>
+``
