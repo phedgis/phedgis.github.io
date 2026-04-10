@@ -51,11 +51,6 @@
     margin-bottom: 10px;
   }
 
-  h3 {
-    margin-top: 0;
-    margin-bottom: 6px;
-  }
-
   input, select {
     padding: 8px;
     width: 100%;
@@ -73,68 +68,29 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
-    margin: 3px 0;
   }
 
-  .button-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
-  }
+  .small-btn { padding: 5px; font-size: 12px; }
 
-  .button-row button {
-    flex: 1 1 calc(33.33% - 6px);
-  }
-
-  .table-wrapper {
-    overflow-x: auto;
-    background: white;
-    border-radius: 8px;
-    padding: 5px;
-  }
+  .captureBtn { background: #007bff; }
+  .edit-btn { background: #ff9900; }
+  .delete-btn { background: #cc0000; }
 
   table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 6px;
     font-size: 13px;
-    table-layout: fixed;
   }
 
   th, td {
     padding: 6px;
-    word-wrap: break-word;
     text-align: center;
   }
 
   th {
     background: #004aad;
     color: white;
-  }
-
-  .small-btn { padding: 4px; font-size: 11px; }
-  .small-btn i { font-size: 14px; }
-
-  .captureBtn { background: #007bff; }
-  .edit-btn { background: #ff9900; }
-  .delete-btn { background: #cc0000; }
-
-  /* Column widths */
-  table th:nth-child(1),
-  table td:nth-child(1),
-  table th:nth-child(3),
-  table td:nth-child(3),
-  table th:nth-child(4),
-  table td:nth-child(4),
-  table th:nth-child(5),
-  table td:nth-child(5) {
-    width: 16%;
-  }
-
-  table th:nth-child(2),
-  table td:nth-child(2) {
-    width: 36%;
   }
 </style>
 </head>
@@ -147,37 +103,31 @@
 </header>
 
 <div class="container">
-
   <div id="titleSection" class="card">
     <h3>Enter Project Title</h3>
-    <input type="text" id="projectTitleInput" placeholder="Enter title here" />
+    <input type="text" id="projectTitleInput" placeholder="Enter title here">
     <br><br>
     <button onclick="startApp()">Start</button>
   </div>
 
   <div id="appContent" class="card" style="display:none">
-
     <div class="button-row">
       <button onclick="addRow()">Add Asset</button>
       <button onclick="exportExcel()">Export Excel</button>
       <button onclick="exportPDF()">Export PDF</button>
     </div>
 
-    <div class="table-wrapper">
-      <table id="dataTable">
-        <thead>
-          <tr>
-            <th>S/N</th>
-            <th>Asset</th>
-            <th>Lat</th>
-            <th>Long</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>S/N</th>
+          <th>Asset</th>
+          <th colspan="2">Location Capture</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
 
@@ -195,7 +145,6 @@ function startApp() {
   if (!title) return alert("Enter a project title.");
 
   document.getElementById("projectTitleHeader").innerText = title;
-
   globalDate = new Date().toLocaleDateString();
   document.getElementById("projectDate").innerText = "Date: " + globalDate;
   document.getElementById("projectDate").style.display = "block";
@@ -204,7 +153,7 @@ function startApp() {
   document.getElementById("appContent").style.display = "block";
 }
 
-/* Update Serial Numbers */
+/* Update S/N */
 function updateSerialNumbers() {
   const rows = document.querySelectorAll("#dataTable tbody tr");
   rows.forEach((row, index) => {
@@ -234,24 +183,19 @@ function addRow() {
       </select>
     </td>
 
-    <td class="latCell">
+    <td colspan="2">
       <button class="captureBtn small-btn" onclick="captureLocation(this)">
         CAPTURE
       </button>
-      <span class="latValue" style="display:none;"></span>
-    </td>
-
-    <td class="lngCell">
-      <span class="lngValue" style="display:none;"></span>
+      <div style="margin-top:5px; font-size:12px;">
+        <span class="latValue"></span><br>
+        <span class="lngValue"></span>
+      </div>
     </td>
 
     <td>
-      <button class="small-btn edit-btn" onclick="editRow(this)">
-        <i class="fa-solid fa-pen"></i>
-      </button>
-      <button class="small-btn delete-btn" onclick="deleteRow(this)">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+      <button class="small-btn edit-btn" onclick="editRow(this)">Edit</button>
+      <button class="small-btn delete-btn" onclick="deleteRow(this)">Delete</button>
     </td>
   `;
 
@@ -267,12 +211,10 @@ function captureLocation(btn) {
       const lat = pos.coords.latitude.toFixed(6);
       const lng = pos.coords.longitude.toFixed(6);
 
-      row.querySelector(".latValue").innerText = lat;
-      row.querySelector(".lngValue").innerText = lng;
+      row.querySelector(".latValue").innerText = "Lat: " + lat;
+      row.querySelector(".lngValue").innerText = "Lng: " + lng;
 
       btn.style.display = "none";
-      row.querySelector(".latValue").style.display = "inline";
-      row.querySelector(".lngValue").style.display = "inline";
 
       const rowId = row.dataset.id;
       const asset = row.querySelector(".assetSelect").value;
@@ -287,25 +229,19 @@ function captureLocation(btn) {
 /* Edit Row */
 function editRow(btn) {
   const row = btn.closest("tr");
-
-  row.querySelector(".latValue").style.display = "none";
-  row.querySelector(".lngValue").style.display = "none";
   row.querySelector(".captureBtn").style.display = "inline";
-
   row.querySelector(".assetSelect").disabled = false;
 }
 
 /* Delete Row */
 function deleteRow(btn) {
   const row = btn.closest("tr");
-  const rowId = row.dataset.id;
-
-  dataArray = dataArray.filter(r => r.id !== rowId);
+  dataArray = dataArray.filter(r => r.id !== row.dataset.id);
   row.remove();
   updateSerialNumbers();
 }
 
-/* Export Excel */
+/* Excel Export */
 function exportExcel() {
   const exportData = dataArray.map((item, index) => ({
     "S/N": index + 1,
@@ -320,7 +256,7 @@ function exportExcel() {
   XLSX.writeFile(wb, "GIS_Data.xlsx");
 }
 
-/* Export PDF */
+/* PDF Export */
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -329,11 +265,7 @@ function exportPDF() {
   doc.text("Date: " + globalDate, 10, 16);
 
   dataArray.forEach((item, i) => {
-    doc.text(
-      `${i + 1}. ${item.asset} | ${item.lat}, ${item.lng}`,
-      10,
-      30 + i * 10
-    );
+    doc.text(`${i + 1}. ${item.asset} | ${item.lat}, ${item.lng}`, 10, 30 + i * 10);
   });
 
   doc.save("GIS_Data.pdf");
