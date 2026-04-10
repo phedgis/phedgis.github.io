@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PHED GIS Capture App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GIS Capture App</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,81 +13,14 @@
       font-family: "Segoe UI", Arial, sans-serif;
       margin: 0;
       background: #f4f6f8;
-      color: #333;
+      padding-bottom: 80px;
     }
 
     header {
       background: #004aad;
       color: white;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
-    }
-
-    h2 { margin-bottom: 10px; }
-
-    .container {
-      padding: 25px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    input, select {
-      padding: 10px;
-      width: 60%;
-      border-radius: 6px;
-      border: 1px solid #aaa;
-      margin-top: 10px;
-    }
-
-    button {
-      padding: 10px 16px;
-      background: #0066ff;
-      border: none;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-      font-size: 14px;
-      margin: 5px;
-    }
-
-    button:hover {
-      background: #004ec2;
-    }
-
-    button:disabled {
-      background: #ccc !important;
-      color: #666;
-      cursor: not-allowed !important;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    th {
-      background: #004aad;
-      color: white;
-      padding: 12px;
-    }
-
-    td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #eee;
     }
 
     footer {
@@ -94,8 +28,97 @@
       color: white;
       text-align: center;
       padding: 15px;
-      margin-top: 40px;
       font-size: 14px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .container { padding: 15px; }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    input, select {
+      padding: 12px;
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px;
+      width: 100%;
+      background: #0066ff;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    /* ✅ BUTTON ROW FIX */
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .button-row button {
+      flex: 1;
+      width: auto;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 600px) {
+      .button-row {
+        flex-direction: column;
+      }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    th {
+      background: #004aad;
+      color: white;
+      padding: 10px;
+    }
+
+    td {
+      padding: 8px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .small-btn { padding: 8px; font-size: 12px; margin: 2px; }
+    .edit-btn { background: #ff9900; }
+    .delete-btn { background: #cc0000; }
+
+    .locked td {
+      background: #d9d9d9 !important;
+      color: #666 !important;
+      pointer-events: none !important;
+    }
+
+    .locked td:last-child {
+      pointer-events: auto !important;
+      background: #e2e2e2 !important;
     }
   </style>
 </head>
@@ -104,39 +127,42 @@
 
 <header>
   <h2 id="projectTitleHeader">GIS Capture App</h2>
+  <div id="projectDate" style="display:none;"></div>
 </header>
 
 <div class="container">
 
-  <!-- ✅ Title Input Screen -->
   <div id="titleSection" class="card">
     <h3>Enter Project Title</h3>
     <input type="text" id="projectTitleInput" placeholder="Enter title here">
     <br><br>
-    <button onclick="startApp(this)">Start</button>
+    <button onclick="startApp()">Start</button>
   </div>
 
-  <!-- ✅ Main App Section -->
   <div id="appContent" class="card" style="display:none;">
-    <button onclick="addRow()">Add Row</button>
-    <button onclick="exportExcel()">Export Excel</button>
-    <button onclick="exportPDF()">Export PDF</button>
+    
+    <!-- ✅ BUTTONS NOW IN ONE ROW -->
+    <div class="button-row">
+      <button onclick="addRow()">Add Row</button>
+      <button onclick="exportExcel()">Export Excel</button>
+      <button onclick="exportPDF()">Export PDF</button>
+    </div>
 
     <table id="dataTable">
       <thead>
         <tr>
+          <th>S/N</th>
           <th>Asset</th>
-          <th>Asset Description</th>
-          <th>GIS Capture</th>
+          <th>Description</th>
+          <th>GPS</th>
           <th>Latitude</th>
           <th>Longitude</th>
-          <th>Date</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
-
 </div>
 
 <footer>
@@ -145,24 +171,41 @@
 
 <script>
 let dataArray = [];
+let globalDate = "";
 
-/* ✅ Title Setup */
-function startApp(btn) {
+/* Start App */
+function startApp() {
   const title = document.getElementById("projectTitleInput").value.trim();
-  if (!title) return alert("Please enter a title first.");
+  if (!title) return alert("Enter a project title.");
 
   document.getElementById("projectTitleHeader").innerText = title;
+
+  globalDate = new Date().toLocaleDateString();
+  document.getElementById("projectDate").innerText = "Date: " + globalDate;
+  document.getElementById("projectDate").style.display = "block";
 
   document.getElementById("titleSection").style.display = "none";
   document.getElementById("appContent").style.display = "block";
 }
 
-/* ✅ Add Table Row */
+/* Update S/N */
+function updateSerialNumbers() {
+  const rows = document.querySelectorAll("#dataTable tbody tr");
+  rows.forEach((row, index) => {
+    row.querySelector("td").innerText = index + 1;
+  });
+}
+
+/* Add Row */
 function addRow() {
   const table = document.querySelector("#dataTable tbody");
   const row = table.insertRow();
 
+  const rowId = Date.now() + Math.random();
+  row.dataset.id = rowId;
+
   row.innerHTML = `
+    <td></td>
     <td>
       <select class="assetSelect">
         <option value="Transformer">Transformer</option>
@@ -171,59 +214,107 @@ function addRow() {
       </select>
     </td>
     <td><input type="text" class="assetDesc" placeholder="Enter description"></td>
-    <td><button onclick="captureLocation(this)">Capture</button></td>
+    <td><button class="captureBtn" onclick="captureLocation(this)">Capture</button></td>
     <td class="latCell"></td>
     <td class="lngCell"></td>
-    <td class="dateCell"></td>
+    <td>
+      <button class="small-btn edit-btn" onclick="editRow(this)">Edit</button>
+      <button class="small-btn delete-btn" onclick="deleteRow(this)">Delete</button>
+    </td>
   `;
+
+  updateSerialNumbers();
 }
 
-/* ✅ Capture GPS for specific row */
+/* Capture GPS */
 function captureLocation(button) {
   const row = button.closest("tr");
-
-  const asset = row.querySelector(".assetSelect").value;
-  const desc = row.querySelector(".assetDesc").value;
 
   navigator.geolocation.getCurrentPosition(function(pos) {
     const lat = pos.coords.latitude.toFixed(6);
     const lng = pos.coords.longitude.toFixed(6);
-    const date = new Date().toLocaleString();
 
     row.querySelector(".latCell").innerText = lat;
     row.querySelector(".lngCell").innerText = lng;
-    row.querySelector(".dateCell").innerText = date;
 
-    // ✅ Disable and gray out button
     button.disabled = true;
     button.innerText = "Captured";
 
-    dataArray.push({ asset, desc, lat, lng, date });
+    lockRow(row);
 
-  }, function() {
-    alert("Unable to retrieve location");
-  });
+    const rowId = row.dataset.id;
+    const asset = row.querySelector(".assetSelect").value;
+    const desc  = row.querySelector(".assetDesc").value;
+
+    dataArray = dataArray.filter(r => r.id !== rowId);
+    dataArray.push({ id: rowId, asset, desc, lat, lng });
+
+  }, () => alert("GPS unavailable."));
 }
 
-/* ✅ Export Excel */
+/* Lock row */
+function lockRow(row) {
+  row.classList.add("locked");
+  row.querySelector(".assetSelect").disabled = true;
+  row.querySelector(".assetDesc").disabled = true;
+  row.querySelector(".captureBtn").disabled = true;
+}
+
+/* Edit */
+function editRow(btn) {
+  const row = btn.closest("tr");
+  row.classList.remove("locked");
+
+  row.querySelector(".assetSelect").disabled = false;
+  row.querySelector(".assetDesc").disabled = false;
+
+  const captureBtn = row.querySelector(".captureBtn");
+  captureBtn.disabled = false;
+  captureBtn.innerText = "Capture";
+
+  alert("Row unlocked. You can now edit & recapture GPS.");
+}
+
+/* Delete Row */
+function deleteRow(btn) {
+  const row = btn.closest("tr");
+  const rowId = row.dataset.id;
+
+  dataArray = dataArray.filter(r => r.id !== rowId);
+
+  row.remove();
+  updateSerialNumbers();
+}
+
+/* Export Excel */
 function exportExcel() {
-  const ws = XLSX.utils.json_to_sheet(dataArray);
+  const exportData = dataArray.map((item, index) => ({
+    "S/N": index + 1,
+    Asset: item.asset,
+    Description: item.desc,
+    Latitude: item.lat,
+    Longitude: item.lng
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "GIS Data");
   XLSX.writeFile(wb, "GIS_Data.xlsx");
 }
 
-/* ✅ Export PDF */
+/* Export PDF */
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   doc.text(document.getElementById("projectTitleHeader").innerText, 10, 10);
+  doc.text("Date: " + globalDate, 10, 16);
 
   dataArray.forEach((item, i) => {
     doc.text(
-      `${item.asset} | ${item.desc} | ${item.lat}, ${item.lng} | ${item.date}`,
-      10, 20 + (i * 10)
+      `${i + 1}. ${item.asset} | ${item.desc} | ${item.lat}, ${item.lng}`,
+      10,
+      30 + (i * 10)
     );
   });
 
