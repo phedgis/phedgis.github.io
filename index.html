@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GIS Capture App</title>
 
   <!-- FONT AWESOME -->
@@ -13,85 +13,98 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-  body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f4f6f8;
-  }
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+}
 
-  header {
-    background: #004aad;
-    color: white;
-    padding: 8px 0;
-    text-align: center;
-  }
+header {
+  background: #004aad;
+  color: white;
+  padding: 8px;
+  text-align: center;
+}
 
-  footer {
-    background: #004aad;
-    color: white;
-    text-align: center;
-    padding: 8px 0;
-    font-size: 12px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-  }
+footer {
+  background: #004aad;
+  color: white;
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
 
-  .container {
-    padding: 8px;
-  }
+.container { padding: 8px; }
 
-  .card {
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    margin-bottom: 10px;
-  }
+.card {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
 
-  input, select {
-    padding: 8px;
-    width: 100%;
-    border-radius: 6px;
-    border: 1px solid #aaa;
-    font-size: 14px;
-  }
+input, select {
+  padding: 8px;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+}
 
-  button {
-    padding: 8px;
-    width: 100%;
-    background: #0066ff;
-    border: none;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-  }
+button {
+  padding: 8px;
+  width: 100%;
+  background: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  margin: 3px 0;
+  cursor: pointer;
+}
 
-  .small-btn { padding: 5px; font-size: 12px; }
+.button-row {
+  display: flex;
+  gap: 6px;
+}
 
-  .captureBtn { background: #007bff; }
-  .edit-btn { background: #ff9900; }
-  .delete-btn { background: #cc0000; }
+.button-row button {
+  flex: 1;
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 6px;
-    font-size: 13px;
-  }
+.table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  padding: 5px;
+}
 
-  th, td {
-    padding: 6px;
-    text-align: center;
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
 
-  th {
-    background: #004aad;
-    color: white;
-  }
+th, td {
+  padding: 6px;
+  text-align: center;
+}
+
+th {
+  background: #004aad;
+  color: white;
+}
+
+.small-btn { padding: 5px; font-size: 12px; }
+
+.captureBtn { background: #007bff; }
+.edit-btn { background: #ff9900; }
+.delete-btn { background: #cc0000; }
+
+.captureCell {
+  text-align: center;
+}
 </style>
 </head>
 
@@ -103,31 +116,36 @@
 </header>
 
 <div class="container">
+
   <div id="titleSection" class="card">
     <h3>Enter Project Title</h3>
-    <input type="text" id="projectTitleInput" placeholder="Enter title here">
-    <br><br>
+    <input type="text" id="projectTitleInput" placeholder="Enter title here"/>
     <button onclick="startApp()">Start</button>
   </div>
 
   <div id="appContent" class="card" style="display:none">
+
     <div class="button-row">
       <button onclick="addRow()">Add Asset</button>
       <button onclick="exportExcel()">Export Excel</button>
       <button onclick="exportPDF()">Export PDF</button>
     </div>
 
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>S/N</th>
-          <th>Asset</th>
-          <th colspan="2">Location Capture</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Asset</th>
+            <th>Lat</th>
+            <th>Long</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
   </div>
 </div>
 
@@ -145,6 +163,7 @@ function startApp() {
   if (!title) return alert("Enter a project title.");
 
   document.getElementById("projectTitleHeader").innerText = title;
+
   globalDate = new Date().toLocaleDateString();
   document.getElementById("projectDate").innerText = "Date: " + globalDate;
   document.getElementById("projectDate").style.display = "block";
@@ -153,11 +172,11 @@ function startApp() {
   document.getElementById("appContent").style.display = "block";
 }
 
-/* Update S/N */
+/* Serial Numbers */
 function updateSerialNumbers() {
   const rows = document.querySelectorAll("#dataTable tbody tr");
   rows.forEach((row, index) => {
-    row.querySelector("td").innerText = index + 1;
+    row.cells[0].innerText = index + 1;
   });
 }
 
@@ -173,29 +192,29 @@ function addRow() {
 
     <td>
       <select class="assetSelect">
-        <option value="Transformer">Transformer</option>
-        <option value="40ft HT Pole">40ft HT Pole</option>
-        <option value="34ft HT Pole">34ft HT Pole</option>
-        <option value="28ft LT Pole">28ft LT Pole</option>
-        <option value="33kV Gang Isolator">33kV Gang Isolator</option>
-        <option value="11kV Gang Isolator">11kV Gang Isolator</option>
-        <option value="Auto Recloser">Auto Recloser</option>
+        <option>Transformer</option>
+        <option>40ft HT Pole</option>
+        <option>34ft HT Pole</option>
+        <option>28ft LT Pole</option>
+        <option>33kV Gang Isolator</option>
+        <option>11kV Gang Isolator</option>
+        <option>Auto Recloser</option>
       </select>
     </td>
 
-    <td colspan="2">
+    <td colspan="2" class="captureCell">
       <button class="captureBtn small-btn" onclick="captureLocation(this)">
-        CAPTURE
+        <i class="fa-solid fa-location-crosshairs"></i> Capture
       </button>
-      <div style="margin-top:5px; font-size:12px;">
-        <span class="latValue"></span><br>
-        <span class="lngValue"></span>
-      </div>
     </td>
 
     <td>
-      <button class="small-btn edit-btn" onclick="editRow(this)">Edit</button>
-      <button class="small-btn delete-btn" onclick="deleteRow(this)">Delete</button>
+      <button class="small-btn edit-btn" onclick="editRow(this)">
+        <i class="fa-solid fa-pen"></i>
+      </button>
+      <button class="small-btn delete-btn" onclick="deleteRow(this)">
+        <i class="fa-solid fa-trash"></i>
+      </button>
     </td>
   `;
 
@@ -211,11 +230,24 @@ function captureLocation(btn) {
       const lat = pos.coords.latitude.toFixed(6);
       const lng = pos.coords.longitude.toFixed(6);
 
-      row.querySelector(".latValue").innerText = "Lat: " + lat;
-      row.querySelector(".lngValue").innerText = "Lng: " + lng;
+      const captureCell = btn.parentElement;
 
-      btn.style.display = "none";
+      // Remove merged cell
+      captureCell.remove();
 
+      // Create Lat cell
+      const latCell = document.createElement("td");
+      latCell.innerText = lat;
+
+      // Create Long cell
+      const lngCell = document.createElement("td");
+      lngCell.innerText = lng;
+
+      // Insert them in correct positions
+      row.insertBefore(latCell, row.children[2]);
+      row.insertBefore(lngCell, row.children[3]);
+
+      // Save data
       const rowId = row.dataset.id;
       const asset = row.querySelector(".assetSelect").value;
 
@@ -229,19 +261,36 @@ function captureLocation(btn) {
 /* Edit Row */
 function editRow(btn) {
   const row = btn.closest("tr");
-  row.querySelector(".captureBtn").style.display = "inline";
-  row.querySelector(".assetSelect").disabled = false;
+
+  // Remove Lat & Long cells
+  row.children[2].remove();
+  row.children[2].remove();
+
+  // Restore capture button
+  const captureCell = document.createElement("td");
+  captureCell.colSpan = 2;
+  captureCell.className = "captureCell";
+
+  captureCell.innerHTML = `
+    <button class="captureBtn small-btn" onclick="captureLocation(this)">
+      <i class="fa-solid fa-location-crosshairs"></i> Recapture
+    </button>
+  `;
+
+  row.insertBefore(captureCell, row.children[2]);
 }
 
 /* Delete Row */
 function deleteRow(btn) {
   const row = btn.closest("tr");
-  dataArray = dataArray.filter(r => r.id !== row.dataset.id);
+  const rowId = row.dataset.id;
+
+  dataArray = dataArray.filter(r => r.id !== rowId);
   row.remove();
   updateSerialNumbers();
 }
 
-/* Excel Export */
+/* Export Excel */
 function exportExcel() {
   const exportData = dataArray.map((item, index) => ({
     "S/N": index + 1,
@@ -256,7 +305,7 @@ function exportExcel() {
   XLSX.writeFile(wb, "GIS_Data.xlsx");
 }
 
-/* PDF Export */
+/* Export PDF */
 function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -265,7 +314,11 @@ function exportPDF() {
   doc.text("Date: " + globalDate, 10, 16);
 
   dataArray.forEach((item, i) => {
-    doc.text(`${i + 1}. ${item.asset} | ${item.lat}, ${item.lng}`, 10, 30 + i * 10);
+    doc.text(
+      `${i + 1}. ${item.asset} | ${item.lat}, ${item.lng}`,
+      10,
+      30 + i * 10
+    );
   });
 
   doc.save("GIS_Data.pdf");
