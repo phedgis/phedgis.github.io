@@ -22,7 +22,7 @@ body {
   font-family: "Segoe UI", Arial, sans-serif;
   margin: 0;
   background: #f4f6f8;
-  overflow-x: hidden; /* ✅ Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 
 header {
@@ -69,16 +69,14 @@ footer {
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 10px;
-  max-width: 100%;
 }
 
 input, select {
   padding: 8px;
   width: 100%;
-  max-width: 100%;  /* ✅ Prevent overflow */
   border-radius: 6px;
   border: 1px solid #aaa;
-  font-size: 16px;  /* ✅ Prevent mobile zoom */
+  font-size: 16px;
 }
 
 button {
@@ -97,7 +95,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* ✅ Export Buttons (RIGHT‑ALIGNED + 10% WIDTH) */
+/* ✅ Export Buttons */
 .button-row {
   display: flex;
   justify-content: flex-end;
@@ -112,7 +110,7 @@ button:disabled {
   font-weight: bold;
 }
 
-/* ✅ Centered Add Asset Button */
+/* ✅ Add Asset Button */
 .add-asset-row {
   display: flex;
   justify-content: center;
@@ -131,13 +129,11 @@ button:disabled {
   background: white;
   border-radius: 8px;
   padding: 5px;
-  max-width: 100%;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 }
 
 th, td {
@@ -155,7 +151,7 @@ th {
 }
 
 #dataTable tbody tr:nth-child(even) {
-  background: #ffffff;
+  background: white;
 }
 
 .small-btn { padding: 5px; font-size: 12px; }
@@ -163,22 +159,10 @@ th {
 .edit-btn { background: #ff9900; }
 .delete-btn { background: #cc0000; }
 
-.captureCell {
-  text-align: center;
-}
-
-/* ✅ MOBILE FIXES */
+/* ✅ Mobile */
 @media (max-width: 480px) {
-  .card, .container {
-    padding: 8px;
-  }
-
-  input, select {
-    font-size: 16px;
-  }
-
   .button-row button, #addAssetBtn {
-    width: 30vw; /* Bigger buttons on small screens */
+    width: 30vw;
   }
 }
 </style>
@@ -196,21 +180,14 @@ th {
 <div class="container">
 
   <div id="titleSection" class="card">
-  <h3>Enter Project Title</h3>
-  <input type="text" id="projectTitleInput" placeholder="Enter title here"/>
+    <h3>Enter Project Title</h3>
+    <input type="text" id="projectTitleInput" placeholder="Enter title here"/>
 
-  <button 
-    onclick="startApp()"
-    style="
-      width:30%;
-      display:block;
-      margin:12px auto;
-      text-align:center;
-    "
-  >
-    Start
-  </button>
-</div>
+    <button onclick="startApp()" style="width:30%; margin:12px auto; display:block;">
+      Start
+    </button>
+  </div>
+
   <div id="appContent" class="card" style="display:none">
 
     <!-- ✅ Export Buttons -->
@@ -244,7 +221,6 @@ th {
       </table>
     </div>
 
-    <!-- ✅ Centered + 10% width Add Asset Button -->
     <div class="add-asset-row">
       <button style="background: white; color: black; border: 1px solid blue" id="addAssetBtn" onclick="addRow()">➕ Add Asset</button>
     </div>
@@ -374,8 +350,10 @@ function captureLocation(btn) {
   );
 }
 
-/* ✅ EDIT ROW */
+/* ✅ EDIT WITH CONFIRMATION */
 function editRow(btn) {
+  if (!confirm("Do you want to edit this record?")) return;
+
   const row = btn.closest("tr");
   row.dataset.captured = "";
 
@@ -397,8 +375,10 @@ function editRow(btn) {
   row.querySelector(".assetSelect").disabled = false;
 }
 
-/* ✅ DELETE ROW */
+/* ✅ DELETE WITH CONFIRMATION */
 function deleteRow(btn) {
+  if (!confirm("Are you sure you want to delete this asset?")) return;
+
   const row = btn.closest("tr");
   dataArray = dataArray.filter(r => r.id !== row.dataset.id);
   row.remove();
