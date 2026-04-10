@@ -65,48 +65,51 @@
       margin: 5px 0;
     }
 
-    /* ✅ BUTTON ROW FIX */
+    /* ✅ Button Row */
     .button-row {
       display: flex;
       gap: 10px;
       margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .button-row button {
-      flex: 1;
-      width: auto;
+      flex: 1 1 calc(33.33% - 10px);
     }
 
-    /* Mobile responsiveness */
-    @media (max-width: 600px) {
-      .button-row {
-        flex-direction: column;
-      }
+    /* ✅ Table Wrapper */
+    .table-wrapper {
+      overflow-x: auto;
+      background: white;
+      border-radius: 10px;
+      padding-bottom: 5px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
       font-size: 14px;
+      table-layout: fixed;
+    }
+
+    th, td {
+      padding: 8px;
+      word-wrap: break-word;
+      text-align: center;
     }
 
     th {
       background: #004aad;
       color: white;
-      padding: 10px;
     }
 
-    td {
-      padding: 8px;
-      text-align: center;
-      border-bottom: 1px solid #eee;
+    .small-btn {
+      padding: 6px;
+      font-size: 11px;
+      margin: 2px;
     }
 
-    .small-btn { padding: 8px; font-size: 12px; margin: 2px; }
     .edit-btn { background: #ff9900; }
     .delete-btn { background: #cc0000; }
 
@@ -119,6 +122,38 @@
     .locked td:last-child {
       pointer-events: auto !important;
       background: #e2e2e2 !important;
+    }
+
+    /* ✅ MOBILE OPTIMIZATION */
+    @media (max-width: 600px) {
+      header h2 { font-size: 20px; }
+
+      input, select { font-size: 14px; }
+      button { font-size: 13px; padding: 10px; }
+
+      table { font-size: 12px; }
+      th, td { padding: 6px; }
+
+      .button-row button {
+        flex: 1 1 100%;
+      }
+    }
+
+    /* ✅ Very small devices */
+    @media (max-width: 380px) {
+      header h2 { font-size: 18px; }
+      table { font-size: 11px; }
+      th, td { padding: 5px; }
+
+      button { font-size: 12px; padding: 8px; }
+    }
+
+    /* ✅ Ultra small phones */
+    @media (max-width: 300px) {
+      body { font-size: 12px; }
+      table { font-size: 10px; }
+      th, td { padding: 4px; }
+      header h2 { font-size: 16px; }
     }
   </style>
 </head>
@@ -141,27 +176,31 @@
 
   <div id="appContent" class="card" style="display:none;">
     
-    <!-- ✅ BUTTONS NOW IN ONE ROW -->
+    <!-- ✅ Buttons -->
     <div class="button-row">
       <button onclick="addRow()">Add Row</button>
       <button onclick="exportExcel()">Export Excel</button>
       <button onclick="exportPDF()">Export PDF</button>
     </div>
 
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>S/N</th>
-          <th>Asset</th>
-          <th>Description</th>
-          <th>GPS</th>
-          <th>Latitude</th>
-          <th>Longitude</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- ✅ Table Wrapper -->
+    <div class="table-wrapper">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Asset</th>
+            <th>Description</th>
+            <th>GPS</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
   </div>
 </div>
 
