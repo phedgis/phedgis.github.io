@@ -8,117 +8,197 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    body { font-family: Arial; padding: 20px; }
-    button { margin: 5px; padding: 10px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #333;
+    }
 
-    #appContent { display: none; }
+    header {
+      background: #004aad;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h2 { margin-bottom: 10px; }
+
+    .container {
+      padding: 25px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    input, select {
+      padding: 10px;
+      width: 60%;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 10px 16px;
+      background: #0066ff;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 14px;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #004ec2;
+    }
+
+    button:disabled {
+      background: #ccc !important;
+      color: #666;
+      cursor: not-allowed !important;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #004aad;
+      color: white;
+      padding: 12px;
+    }
+
+    td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    footer {
+      background: #004aad;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      margin-top: 40px;
+      font-size: 14px;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- ✅ Title Input Section -->
-<h2>Enter Project Title</h2>
-<input type="text" id="projectTitleInput" placeholder="Enter title here" style="padding:8px; width:60%;">
-<button onclick="startApp()">Start</button>
+<header>
+  <h2 id="projectTitleHeader">GIS Capture App</h2>
+</header>
 
-<!-- ✅ Dynamic Title -->
-<h2 id="projectTitle" style="display:none; margin-top:30px;"></h2>
+<div class="container">
 
-<!-- ✅ Main App Section (Hidden until title is entered) -->
-<div id="appContent">
+  <!-- ✅ Title Input Screen -->
+  <div id="titleSection" class="card">
+    <h3>Enter Project Title</h3>
+    <input type="text" id="projectTitleInput" placeholder="Enter title here">
+    <br><br>
+    <button onclick="startApp(this)">Start</button>
+  </div>
 
-  <button onclick="addRow()">Add Row</button>
-  <button onclick="exportExcel()">Export Excel</button>
-  <button onclick="exportPDF()">Export PDF</button>
+  <!-- ✅ Main App Section -->
+  <div id="appContent" class="card" style="display:none;">
+    <button onclick="addRow()">Add Row</button>
+    <button onclick="exportExcel()">Export Excel</button>
+    <button onclick="exportPDF()">Export PDF</button>
 
-  <table id="dataTable">
-    <thead>
-      <tr>
-        <th>Asset</th>
-        <th>Asset Description</th>
-        <th>GIS Capture</th>
-        <th>Latitude</th>
-        <th>Longitude</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>Asset</th>
+          <th>Asset Description</th>
+          <th>GIS Capture</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
 </div>
+
+<footer>
+  Designed by <strong>Obot Akpan</strong>
+</footer>
 
 <script>
 let dataArray = [];
 
-/* ✅ Start App Only After Entering Title */
-function startApp() {
+/* ✅ Title Setup */
+function startApp(btn) {
   const title = document.getElementById("projectTitleInput").value.trim();
+  if (!title) return alert("Please enter a title first.");
 
-  if (title === "") {
-    alert("Please enter a title.");
-    return;
-  }
+  document.getElementById("projectTitleHeader").innerText = title;
 
-  document.getElementById("projectTitle").innerText = title;
-  document.getElementById("projectTitle").style.display = "block";
-
-  // Show main app content
+  document.getElementById("titleSection").style.display = "none";
   document.getElementById("appContent").style.display = "block";
-
-  // Hide title input section
-  document.getElementById("projectTitleInput").style.display = "none";
-  event.target.style.display = "none"; // hides "Start" button
 }
 
-/* ✅ Add a new row */
+/* ✅ Add Table Row */
 function addRow() {
-  const table = document.getElementById("dataTable").getElementsByTagName("tbody")[0];
+  const table = document.querySelector("#dataTable tbody");
   const row = table.insertRow();
 
-  row.insertCell(0).innerHTML = `
+  row.innerHTML = `
+    <td>
       <select class="assetSelect">
         <option value="Transformer">Transformer</option>
         <option value="HT Pole">HT Pole</option>
         <option value="LT Pole">LT Pole</option>
       </select>
+    </td>
+    <td><input type="text" class="assetDesc" placeholder="Enter description"></td>
+    <td><button onclick="captureLocation(this)">Capture</button></td>
+    <td class="latCell"></td>
+    <td class="lngCell"></td>
+    <td class="dateCell"></td>
   `;
-
-  row.insertCell(1).innerHTML = `<input type="text" class="assetDesc" placeholder="Enter description">`;
-
-  row.insertCell(2).innerHTML = `<button onclick="captureLocation(this)">Capture</button>`;
-
-  row.insertCell(3).classList.add("latCell");
-  row.insertCell(4).classList.add("lngCell");
-  row.insertCell(5).classList.add("dateCell");
 }
 
-/* ✅ Capture location per row */
+/* ✅ Capture GPS for specific row */
 function captureLocation(button) {
-  const row = button.parentNode.parentNode;
+  const row = button.closest("tr");
 
   const asset = row.querySelector(".assetSelect").value;
-  const desc  = row.querySelector(".assetDesc").value;
+  const desc = row.querySelector(".assetDesc").value;
 
-  navigator.geolocation.getCurrentPosition(function(position) {
-    const lat = position.coords.latitude.toFixed(6);
-    const lng = position.coords.longitude.toFixed(6);
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    const lat = pos.coords.latitude.toFixed(6);
+    const lng = pos.coords.longitude.toFixed(6);
     const date = new Date().toLocaleString();
 
     row.querySelector(".latCell").innerText = lat;
     row.querySelector(".lngCell").innerText = lng;
     row.querySelector(".dateCell").innerText = date;
 
-    // ✅ Gray-out + disable capture button
+    // ✅ Disable and gray out button
     button.disabled = true;
     button.innerText = "Captured";
-    button.style.background = "#ccc";
-    button.style.cursor = "not-allowed";
 
-    const record = { asset, desc, lat, lng, date };
-    dataArray.push(record);
+    dataArray.push({ asset, desc, lat, lng, date });
 
   }, function() {
     alert("Unable to retrieve location");
@@ -138,11 +218,13 @@ function exportPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.text(document.getElementById("projectTitle").innerText, 10, 10);
+  doc.text(document.getElementById("projectTitleHeader").innerText, 10, 10);
 
-  dataArray.forEach((item, index) => {
-    const line = `${item.asset} | ${item.desc} | ${item.lat}, ${item.lng} | ${item.date}`;
-    doc.text(line, 10, 20 + (index * 10));
+  dataArray.forEach((item, i) => {
+    doc.text(
+      `${item.asset} | ${item.desc} | ${item.lat}, ${item.lng} | ${item.date}`,
+      10, 20 + (i * 10)
+    );
   });
 
   doc.save("GIS_Data.pdf");
